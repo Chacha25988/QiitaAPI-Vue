@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+  <script src="https://cdn.jsdelivr.net/npm/vue@2.6.14/dist/vue.js"></script>
+    <title>Document</title>
+</head>
+<body>
+    <div id="app1">
+        <h1>トレンド記事</h1>
+        <ul>
+          <li v-for="article in articles" :key="article.id">
+            <a :href="article.url" target="_blank">{{ article.title }}</a>
+          </li>
+        </ul>
+      </div>
+    <script src="vue.js"></script>  
+    <div id="app2">
+        <h1>投稿履歴</h1>
+        <ul>
+          <li v-for="post in posts" :key="post.id">
+            <a :href="post.url" target="_blank">{{ post.title }}</a>
+          </li>
+        </ul>
+      </div>
+      <script src="vue02.js"></script>
+      <div id="app3">
+        <h1>Qiita 記事投稿</h1>
+        <form @submit.prevent="postArticle">
+          <label for="title">タイトル:</label>
+          <input type="text" id="title" v-model="article.title" required>
+          <br>
+          <label for="body">本文:</label>
+          <textarea id="body" v-model="article.body" required></textarea>
+          <br>
+          <label for="tags">タグ(カンマ区切り):</label>
+          <input type="text" id="tags" v-model="article.tags" required>
+          <br>
+          <button type="submit">投稿</button>
+        </form>
+      </div>
+    
+      <script>
+        new Vue({
+          el: '#app3',
+          data: {
+            article: {
+              title: '',
+              body: '',
+              tags: ''
+            },
+            resultMessage: ''
+          },
+          methods: {
+            postArticle() {
+              const access_token = 'YOUR_ACCESS_TOKEN';
+    
+              const url = 'https://qiita.com/api/v2/items';
+              const headers = {
+                'Authorization': `Bearer 31664c23aa1195b404934bf8c5876f134d24389f`,
+                'Content-Type': 'application/json'
+              };
+    
+              const articleData = {
+                title: this.article.title,
+                body: this.article.body,
+                tags: this.article.tags.split(",").map(tag => ({ name: tag.trim() }))
+              };
+    
+              fetch(url, {
+                method: 'POST',
+                headers: headers,
+                body: JSON.stringify(articleData)
+              })
+              .then(response => response.json())
+              .then(data => {
+                this.resultMessage = `Article posted successfully with ID: ${data.id}`;
+                this.article.title = '';
+                this.article.body = '';
+                this.article.tags = '';
+              })
+              .catch(error => {
+                this.resultMessage = `Error: ${error.message}`;
+              });
+            }
+          }
+        });
+      </script>
+</body>
+</html>
